@@ -1,9 +1,9 @@
 ---
-title: 静寂与流动
-subtitle: 作品集 · 2026
-bio: 在摄影、设计与代码的交汇处，探索传统东方美学与当代数字表达之间的对话。
-quote: 静寂之中，自有答案
-quoteAuthor: 静けさの中に、すべての答えがある
+title: 楓桜
+subtitle: 2026
+bio: 记录碎碎念
+quote: 在人间漂流
+quoteAuthor: 消えずに光の中で
 projects:
   - id: "01"
     title: YOSUGA
