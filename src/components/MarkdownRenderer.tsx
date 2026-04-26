@@ -127,6 +127,34 @@ function parseInline(text: string): React.ReactNode {
     );
   }
 
+  // Handle inline HTML tags like <strong>, <em>, etc.
+  const htmlTagRegex = /<(strong|em|code|b|i)>(.*?)<\/\1>/g;
+  const splitByHtml = text.split(htmlTagRegex);
+  if (splitByHtml.length > 1) {
+    const parts: React.ReactNode[] = [];
+    let idx = 0;
+    let match;
+    htmlTagRegex.lastIndex = 0;
+    while ((match = htmlTagRegex.exec(text)) !== null) {
+      if (match.index > idx) {
+        parts.push(parseInline(text.slice(idx, match.index)));
+      }
+      const tag = match[1];
+      if (tag === "strong" || tag === "b") {
+        parts.push(<strong key={idx} className="font-bold text-gray-900">{match[2]}</strong>);
+      } else if (tag === "em" || tag === "i") {
+        parts.push(<em key={idx} className="italic">{match[2]}</em>);
+      } else if (tag === "code") {
+        parts.push(<code key={idx} className="bg-gray-100 px-1.5 py-0.5 rounded text-sm text-pink-500">{match[2]}</code>);
+      }
+      idx = match.index + match[0].length;
+    }
+    if (idx < text.length) {
+      parts.push(parseInline(text.slice(idx)));
+    }
+    return parts;
+  }
+
   const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
