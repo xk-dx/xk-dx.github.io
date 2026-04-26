@@ -23,7 +23,7 @@
     return;
   }
 
-  var W = 180, H = 260;
+  var W = 300, H = 420;
 
   var container = document.createElement("div");
   container.id = "live2d-container";
@@ -53,9 +53,9 @@
       "/lib/live2d/models/231110/yili.model3.json"
     );
     app.stage.addChild(model);
-    model.anchor.set(0.5, 1);
-    model.position.set(W / 2, H - 5);
-    model.scale.set(0.22);
+    model.anchor.set(0.5, 0.95);
+    model.position.set(W / 2, H - 10);
+    model.scale.set(0.18);
 
     container.addEventListener("mousemove", function (e) {
       var rect = container.getBoundingClientRect();
