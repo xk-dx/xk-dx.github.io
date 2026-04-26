@@ -75,7 +75,7 @@ export default function BlogClient({ posts }: { posts: PostMeta[] }) {
 
       <main className="relative z-10 max-w-5xl mx-auto px-6 pb-24">
         <div className="grid gap-6 md:grid-cols-2">
-          {posts.map((post, i) => (
+          {posts.map((post) => (
             <motion.div
               key={post.slug}
               initial="hidden"
@@ -84,15 +84,8 @@ export default function BlogClient({ posts }: { posts: PostMeta[] }) {
               variants={cardVariants}
             >
               <Link href={"/blog/" + post.slug}>
-                <motion.div
-                  whileHover={{ y: -8, scale: 1.01 }}
-                  className="group relative bg-white/40 dark:bg-dark-card backdrop-blur-xl rounded-2xl p-7 border border-white/60 dark:border-dark-border transition-colors duration-500 hover:shadow-xl hover:shadow-[#EFD3D7]/20 dark:hover:shadow-[#EFD3D7]/10"
-                >
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: "100%" }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 + 0.3, duration: 0.4 }}
+                <div className="group relative bg-white/40 dark:bg-dark-card backdrop-blur-xl rounded-2xl p-7 border border-white/60 dark:border-dark-border transition-all duration-500 hover:shadow-xl hover:shadow-[#EFD3D7]/20 dark:hover:shadow-[#EFD3D7]/10 hover:-translate-y-2">
+                  <div
                     className="absolute top-0 left-6 h-1 rounded-full"
                     style={{ backgroundColor: post.color, opacity: 0.5 }}
                   />
@@ -104,18 +97,14 @@ export default function BlogClient({ posts }: { posts: PostMeta[] }) {
                   <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text group-hover:text-[#8E9AAF] transition-colors mb-3">{post.title}</h2>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-[#CBC0D3] tracking-wider">{post.date}</span>
-                    <motion.span
-                      initial={{ x: -5, opacity: 0 }}
-                      whileHover={{ x: 3, opacity: 1 }}
-                      className="text-[#CBC0D3] text-sm"
-                    >
+                    <span className="text-[#CBC0D3] text-sm opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
                       →
-                    </motion.span>
+                    </span>
                   </div>
                   <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"
                     style={{ background: `radial-gradient(600px circle at 50% 50%, ${post.color}15, transparent 40%)` }}
                   />
-                </motion.div>
+                </div>
               </Link>
             </motion.div>
           ))}
