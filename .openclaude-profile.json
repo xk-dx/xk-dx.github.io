@@ -1,0 +1,9 @@
+{
+  "profile": "openai",
+  "env": {
+    "OPENAI_BASE_URL": "https://api.moonshot.cn/v1",
+    "OPENAI_MODEL": "kimi-k2.5",
+    "OPENAI_API_KEY": "sk-5MWk8tMxiWJ5ROUfCYBgIULovBoUJcIJc8etMGzWRMrEDaGS"
+  },
+  "createdAt": "2026-04-23T14:22:31.802Z"
+}

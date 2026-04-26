@@ -1,0 +1,115 @@
+export default function MarkdownRenderer({ content }: { content: string }) {
+  const lines = content.split("\n");
+  const elements: React.ReactNode[] = [];
+  let inCode = false;
+  let codeLines: string[] = [];
+
+  const flushCode = (key: string) => {
+    if (codeLines.length > 0) {
+      elements.push(
+        <pre key={key} className="bg-gray-100 rounded-xl p-5 my-6 overflow-x-auto text-sm leading-relaxed">
+          <code>{codeLines.join("\n")}</code>
+        </pre>
+      );
+      codeLines = [];
+    }
+  };
+
+  lines.forEach((line, i) => {
+    if (line.startsWith("```")) {
+      if (inCode) {
+        flushCode(`code-${i}`);
+        inCode = false;
+      } else {
+        inCode = true;
+      }
+      return;
+    }
+    if (inCode) {
+      codeLines.push(line);
+      return;
+    }
+
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    // Headings
+    if (trimmed.startsWith("### ")) {
+      elements.push(<h3 key={i} className="text-lg font-bold text-gray-900 mt-10 mb-4">{trimmed.replace("### ", "")}</h3>);
+      return;
+    }
+    if (trimmed.startsWith("## ")) {
+      elements.push(<h2 key={i} className="text-2xl font-bold text-gray-900 mt-12 mb-5">{trimmed.replace("## ", "")}</h2>);
+      return;
+    }
+
+    // Blockquote
+    if (trimmed.startsWith("> ")) {
+      elements.push(
+        <blockquote key={i} className="border-l-2 border-[#EFD3D7] pl-5 my-6 text-[#8E9AAF] italic text-sm leading-relaxed">
+          {parseInline(trimmed.replace("> ", ""))}
+        </blockquote>
+      );
+      return;
+    }
+
+    // Table
+    if (trimmed.startsWith("|")) {
+      const cells = trimmed.split("|").filter(Boolean).map((c) => c.trim());
+      const isHeader = i + 1 < lines.length && lines[i + 1].trim().match(/^[\|\s:-]+$/);
+      if (isHeader) {
+        elements.push(
+          <div key={i} className="overflow-x-auto my-6">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr>{cells.map((h, ci) => <th key={ci} className="text-left py-2 px-3 font-medium text-gray-900 bg-[#EFD3D7]/20 border-b border-[#CBC0D3]/30">{h}</th>)}</tr>
+              </thead>
+              <tbody id={`tbody-${i}`} />
+            </table>
+          </div>
+        );
+      } else {
+        // Data row — find nearest table and append
+        elements.push(
+          <div key={i} className="hidden" data-table-row={cells.join("||")} />
+        );
+      }
+      return;
+    }
+
+    // Separator
+    if (trimmed === "---" || trimmed === "***") {
+      elements.push(<hr key={i} className="my-10 border-[#CBC0D3]/20" />);
+      return;
+    }
+
+    // List
+    if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      elements.push(<li key={i} className="text-sm text-gray-600 leading-relaxed ml-5 list-disc mb-1.5">{parseInline(trimmed.slice(2))}</li>);
+      return;
+    }
+    if (/^\d+\.\s/.test(trimmed)) {
+      elements.push(<li key={i} className="text-sm text-gray-600 leading-relaxed ml-5 list-decimal mb-1.5">{parseInline(trimmed.replace(/^\d+\.\s/, ""))}</li>);
+      return;
+    }
+
+    // Paragraph
+    elements.push(<p key={i} className="text-sm text-gray-600 leading-relaxed mb-4">{parseInline(trimmed)}</p>);
+  });
+
+  flushCode("code-end");
+  return <>{elements}</>;
+}
+
+function parseInline(text: string): React.ReactNode {
+  const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={i} className="font-bold text-gray-900">{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return <code key={i} className="bg-gray-100 px-1.5 py-0.5 rounded text-sm text-pink-500">{part.slice(1, -1)}</code>;
+    }
+    return part;
+  });
+}
