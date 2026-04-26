@@ -34,6 +34,10 @@ export default function MarkdownRenderer({ content }: { content: string }) {
     if (!trimmed) return;
 
     // Headings
+    if (trimmed.startsWith("# ") && !trimmed.startsWith("## ")) {
+      elements.push(<h1 key={i} className="text-3xl font-bold text-gray-900 mt-14 mb-6">{trimmed.replace("# ", "")}</h1>);
+      return;
+    }
     if (trimmed.startsWith("### ")) {
       elements.push(<h3 key={i} className="text-lg font-bold text-gray-900 mt-10 mb-4">{trimmed.replace("### ", "")}</h3>);
       return;
@@ -102,6 +106,27 @@ export default function MarkdownRenderer({ content }: { content: string }) {
 }
 
 function parseInline(text: string): React.ReactNode {
+  // Handle images ![alt](src)
+  const imgRegex = /!\[(.*?)\]\((.*?)\)/;
+  const imgMatch = text.match(imgRegex);
+  if (imgMatch) {
+    const [full, alt, src] = imgMatch;
+    const before = text.slice(0, imgMatch.index);
+    const after = text.slice(imgMatch.index! + full.length);
+    return (
+      <>
+        {before}
+        <img
+          src={src}
+          alt={alt}
+          className="w-full rounded-xl my-6 shadow-md"
+          loading="lazy"
+        />
+        {parseInline(after)}
+      </>
+    );
+  }
+
   const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
