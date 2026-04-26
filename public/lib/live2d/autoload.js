@@ -57,21 +57,51 @@
     model.position.set(W / 2, H - 10);
     model.scale.set(0.18);
 
-    container.addEventListener("mousemove", function (e) {
-      var rect = container.getBoundingClientRect();
-      var x = (e.clientX - rect.left) / rect.width;
-      model.rotation = (x - 0.5) * 0.2;
-    });
-    container.addEventListener("mouseleave", function () {
-      model.rotation = 0;
-    });
-
     try { model.internalModel.motionManager.startRandomMotion("Idle", 3); } catch (e) {}
   } catch (e) {
     console.error("Failed to load Live2D model:", e);
     container.style.display = "none";
     return;
   }
+
+  // Head/eye tracking via internal parameters
+  var targetX = 0.5, targetY = 0.5;
+  var currentAngleX = 0, currentAngleY = 0;
+  var currentEyeX = 0, currentEyeY = 0;
+  var trackingTicker = null;
+
+  function setParam(id, value) {
+    try {
+      var cm = model.internalModel.coreModel;
+      var cur = cm.getParameterValueById(id);
+      cm.addParameterValueById(id, value - cur);
+    } catch (e) {}
+  }
+
+  function doTrack() {
+    var angleX = (targetX - 0.5) * 30;
+    var angleY = (targetY - 0.5) * -15;
+    var eyeX = (targetX - 0.5) * 20;
+    var eyeY = (targetY - 0.5) * 10;
+
+    currentAngleX += (angleX - currentAngleX) * 0.15;
+    currentAngleY += (angleY - currentAngleY) * 0.15;
+    currentEyeX += (eyeX - currentEyeX) * 0.15;
+    currentEyeY += (eyeY - currentEyeY) * 0.15;
+
+    setParam("ParamAngleX", currentAngleX);
+    setParam("ParamAngleY", currentAngleY);
+    setParam("ParamEyeBallX", currentEyeX);
+    setParam("ParamEyeBallY", currentEyeY);
+  }
+
+  document.addEventListener("mousemove", function (e) {
+    targetX = e.clientX / window.innerWidth;
+    targetY = e.clientY / window.innerHeight;
+    if (!trackingTicker) {
+      trackingTicker = app.ticker.add(doTrack);
+    }
+  });
 
   // Drag support
   var dragStartX, dragStartY, dragOrigX, dragOrigY;
