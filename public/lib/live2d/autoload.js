@@ -56,51 +56,36 @@
     model.anchor.set(0.5, 0.95);
     model.position.set(W / 2, H - 10);
     model.scale.set(0.18);
-
-    try { model.internalModel.motionManager.startRandomMotion("Idle", 3); } catch (e) {}
   } catch (e) {
     console.error("Failed to load Live2D model:", e);
     container.style.display = "none";
     return;
   }
 
-  // Head/eye tracking via internal parameters
+  // Head/eye tracking — directly set params on the internal model
   var targetX = 0.5, targetY = 0.5;
-  var currentAngleX = 0, currentAngleY = 0;
-  var currentEyeX = 0, currentEyeY = 0;
-  var trackingTicker = null;
-
-  function setParam(id, value) {
-    try {
-      var cm = model.internalModel.coreModel;
-      var cur = cm.getParameterValueById(id);
-      cm.addParameterValueById(id, value - cur);
-    } catch (e) {}
-  }
+  var smoothX = 0, smoothY = 0;
 
   function doTrack() {
-    var angleX = (targetX - 0.5) * 30;
-    var angleY = (targetY - 0.5) * -15;
-    var eyeX = (targetX - 0.5) * 20;
-    var eyeY = (targetY - 0.5) * 10;
+    smoothX += (targetX - 0.5 - smoothX) * 0.1;
+    smoothY += (targetY - 0.5 - smoothY) * 0.1;
 
-    currentAngleX += (angleX - currentAngleX) * 0.15;
-    currentAngleY += (angleY - currentAngleY) * 0.15;
-    currentEyeX += (eyeX - currentEyeX) * 0.15;
-    currentEyeY += (eyeY - currentEyeY) * 0.15;
-
-    setParam("ParamAngleX", currentAngleX);
-    setParam("ParamAngleY", currentAngleY);
-    setParam("ParamEyeBallX", currentEyeX);
-    setParam("ParamEyeBallY", currentEyeY);
+    try {
+      var cm = model.internalModel.coreModel;
+      cm.addParameterValueById("ParamAngleX", smoothX * 30 - cm.getParameterValueById("ParamAngleX"));
+      cm.addParameterValueById("ParamAngleY", smoothY * -15 - cm.getParameterValueById("ParamAngleY"));
+      cm.addParameterValueById("ParamEyeBallX", smoothX * 20 - cm.getParameterValueById("ParamEyeBallX"));
+      cm.addParameterValueById("ParamEyeBallY", smoothY * 10 - cm.getParameterValueById("ParamEyeBallY"));
+    } catch (e) {
+      console.warn("Live2D track error:", e);
+    }
   }
+
+  app.ticker.add(doTrack);
 
   document.addEventListener("mousemove", function (e) {
     targetX = e.clientX / window.innerWidth;
     targetY = e.clientY / window.innerHeight;
-    if (!trackingTicker) {
-      trackingTicker = app.ticker.add(doTrack);
-    }
   });
 
   // Drag support
