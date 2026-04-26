@@ -64,28 +64,21 @@
 
   // Head/eye tracking — model faces toward cursor from its own position
   var dx = 0, dy = 0;
-  var curAngleX = 0, curAngleY = 0, curEyeX = 0, curEyeY = 0;
 
-  function doTrack() {
-    var tgtAngleX = dx * 30;
-    var tgtAngleY = dy * -10;
-    var tgtEyeX   = dx * 20;
-    var tgtEyeY   = dy * 8;
-
-    curAngleX += (tgtAngleX - curAngleX) * 0.08;
-    curAngleY += (tgtAngleY - curAngleY) * 0.08;
-    curEyeX   += (tgtEyeX   - curEyeX)   * 0.08;
-    curEyeY   += (tgtEyeY   - curEyeY)   * 0.08;
-
+  app.ticker.add(function () {
     try {
-      model.internalModel.coreModel.addParameterValueById("ParamAngleX", curAngleX - model.internalModel.coreModel.getParameterValueById("ParamAngleX"));
-      model.internalModel.coreModel.addParameterValueById("ParamAngleY", curAngleY - model.internalModel.coreModel.getParameterValueById("ParamAngleY"));
-      model.internalModel.coreModel.addParameterValueById("ParamEyeBallX", curEyeX - model.internalModel.coreModel.getParameterValueById("ParamEyeBallX"));
-      model.internalModel.coreModel.addParameterValueById("ParamEyeBallY", curEyeY - model.internalModel.coreModel.getParameterValueById("ParamEyeBallY"));
-    } catch (e) { console.warn("track", e); }
-  }
+      // Head angle
+      var cm = model.internalModel.coreModel;
+      var aTarget = dx * 30;
+      cm.addParameterValueById("ParamAngleX", aTarget - cm.getParameterValueById("ParamAngleX"));
 
-  app.ticker.add(doTrack);
+      var aTargetY = dy * -10;
+      cm.addParameterValueById("ParamAngleY", aTargetY - cm.getParameterValueById("ParamAngleY"));
+    } catch (e) {}
+    // Eye focus (pixi-live2d built-in API: 0.5 = center)
+    model.focus.x += (0.5 + dx * 0.5 - model.focus.x) * 0.08;
+    model.focus.y += (0.5 + dy * 0.5 - model.focus.y) * 0.08;
+  });
 
   document.addEventListener("mousemove", function (e) {
     var rect = container.getBoundingClientRect();
