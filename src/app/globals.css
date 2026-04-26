@@ -4,12 +4,23 @@
 
 @layer base {
   body {
-    @apply bg-[#F9FAFB] text-gray-900 antialiased overflow-x-hidden;
+    @apply bg-[#F9FAFB] text-gray-900 antialiased overflow-x-hidden transition-colors duration-300;
+  }
+
+  .dark body,
+  body.dark,
+  .dark {
+    @apply bg-[#0f0f13] text-gray-100;
   }
 
   ::selection {
     background-color: #EFD3D7;
     color: #1f2937;
+  }
+
+  .dark ::selection {
+    background-color: #8E9AAF;
+    color: #0f0f13;
   }
 }
 

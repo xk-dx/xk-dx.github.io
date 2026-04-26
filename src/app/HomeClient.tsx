@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import type { HomeData } from "@/lib/home";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navLinks = [
   { label: "作品", href: "#projects" },
@@ -15,7 +16,7 @@ export default function HomeClient({ data }: { data: HomeData }) {
   const [activeProject, setActiveProject] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] font-['Noto_Sans_SC',sans-serif]">
+    <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0f0f13] font-['Noto_Sans_SC',sans-serif] transition-colors duration-300">
       <header className="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
         <div className="flex items-center justify-between px-8 py-6">
           <span className="text-sm font-medium tracking-[0.2em] text-white">XKDX</span>
@@ -29,11 +30,12 @@ export default function HomeClient({ data }: { data: HomeData }) {
                 {link.label}
               </Link>
             ))}
+            <ThemeToggle />
           </nav>
         </div>
       </header>
 
-      <section className="relative h-screen flex items-center px-8 md:px-16 overflow-hidden bg-[#F9FAFB]">
+      <section className="relative h-screen flex items-center px-8 md:px-16 overflow-hidden bg-[#F9FAFB] dark:bg-[#0f0f13]">
         <div className="absolute inset-0">
           <div className="absolute -left-24 bottom-0 w-[55vw] h-[70vh] bg-[#EFD3D7] opacity-30" style={{ clipPath: "polygon(0 15%, 100% 0, 100% 100%, 0 100%)" }} />
           <div className="absolute right-[20%] top-0 w-[4vw] h-full bg-[#CBC0D3] opacity-25" />
@@ -45,8 +47,8 @@ export default function HomeClient({ data }: { data: HomeData }) {
 
         <div className="relative z-10 max-w-5xl">
           <p className="text-sm tracking-[0.3em] text-[#8E9AAF] mb-6 font-medium">{data.subtitle}</p>
-          <h1 className="text-[clamp(3.5rem,14vw,9rem)] font-bold leading-[0.88] tracking-[-0.03em] text-gray-900">{data.title}</h1>
-          <p className="mt-10 max-w-lg text-sm leading-relaxed text-gray-500">{data.bio}</p>
+          <h1 className="text-[clamp(3.5rem,14vw,9rem)] font-bold leading-[0.88] tracking-[-0.03em] text-gray-900 dark:text-gray-100">{data.title}</h1>
+          <p className="mt-10 max-w-lg text-sm leading-relaxed text-gray-500 dark:text-gray-400">{data.bio}</p>
           <div className="mt-16 flex items-center gap-4">
             <span className="text-[10px] tracking-[0.3em] text-[#CBC0D3] font-medium">向下滚动</span>
             <div className="w-12 h-px bg-[#CBC0D3]" />
@@ -59,7 +61,7 @@ export default function HomeClient({ data }: { data: HomeData }) {
           <div className="mb-20 flex items-end justify-between">
             <div>
               <p className="text-xs tracking-[0.3em] text-[#8E9AAF] font-medium mb-3">精选作品</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">项目</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">项目</h2>
             </div>
             <div className="w-10 h-10 bg-[#CBC0D3] opacity-30" />
           </div>
@@ -74,13 +76,13 @@ export default function HomeClient({ data }: { data: HomeData }) {
                 transition={{ delay: i * 0.08, duration: 0.6 }}
                 onMouseEnter={() => setActiveProject(project.id)}
                 onMouseLeave={() => setActiveProject(null)}
-                className="group relative border-t border-gray-300 py-8 cursor-pointer last:border-b"
+                className="group relative border-t border-gray-300 dark:border-gray-700 py-8 cursor-pointer last:border-b"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-8">
                     <span className="text-sm font-mono text-[#CBC0D3]">{project.id}</span>
                     <div>
-                      <h3 className="text-xl md:text-3xl font-bold text-gray-900 group-hover:text-[#8E9AAF] transition-colors">{project.title}</h3>
+                      <h3 className="text-xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-[#8E9AAF] transition-colors">{project.title}</h3>
                     </div>
                   </div>
                   <div className="text-right">
@@ -103,7 +105,7 @@ export default function HomeClient({ data }: { data: HomeData }) {
         </div>
       </section>
 
-      <section className="relative px-8 md:px-16 py-32 overflow-hidden bg-[#F9FAFB]">
+      <section className="relative px-8 md:px-16 py-32 overflow-hidden bg-[#F9FAFB] dark:bg-[#0f0f13]">
         <div className="absolute inset-0">
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[60vh] bg-[#8E9AAF] opacity-5 rotate-3" />
           <div className="absolute right-[10%] top-[15%] w-24 h-24 bg-[#EFD3D7] opacity-25" style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }} />
@@ -118,7 +120,7 @@ export default function HomeClient({ data }: { data: HomeData }) {
         </div>
       </section>
 
-      <footer className="border-t border-gray-300 px-8 md:px-16 py-16 relative overflow-hidden">
+      <footer className="border-t border-gray-300 dark:border-gray-700 px-8 md:px-16 py-16 relative overflow-hidden">
         <div className="absolute right-[15%] top-0 w-1 h-full bg-[#EFD3D7] opacity-20" />
         <div className="absolute left-[8%] bottom-0 w-16 h-16 rounded-full bg-[#CBC0D3] opacity-15" />
         <div className="max-w-6xl mx-auto relative">
