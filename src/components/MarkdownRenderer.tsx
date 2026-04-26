@@ -116,3 +116,58 @@ export default function MarkdownRenderer({ content }: { content: string }) {
   flushCode("code-end");
   return <>{elements}</>;
 }
+
+function parseInline(text: string): React.ReactNode {
+  const imgRegex = /!\[(.*?)\]\((.*?)\)/;
+  const imgMatch = text.match(imgRegex);
+  if (imgMatch) {
+    const [full, alt, src] = imgMatch;
+    const before = text.slice(0, imgMatch.index);
+    const after = text.slice(imgMatch.index! + full.length);
+    return (
+      <>
+        {before}
+        <img src={src} alt={alt} className="w-full rounded-xl my-6 shadow-md" loading="lazy" />
+        {parseInline(after)}
+      </>
+    );
+  }
+
+  const htmlTagRegex = /<(strong|em|code|b|i)>(.*?)<\/\1>/g;
+  const splitByHtml = text.split(htmlTagRegex);
+  if (splitByHtml.length > 1) {
+    const parts: React.ReactNode[] = [];
+    let idx = 0;
+    let match;
+    htmlTagRegex.lastIndex = 0;
+    while ((match = htmlTagRegex.exec(text)) !== null) {
+      if (match.index > idx) {
+        parts.push(parseInline(text.slice(idx, match.index)));
+      }
+      const tag = match[1];
+      if (tag === "strong" || tag === "b") {
+        parts.push(<strong key={idx} className="font-bold text-gray-900 dark:text-dark-text">{match[2]}</strong>);
+      } else if (tag === "em" || tag === "i") {
+        parts.push(<em key={idx} className="italic">{match[2]}</em>);
+      } else if (tag === "code") {
+        parts.push(<code key={idx} className="bg-gray-100 dark:bg-dark-card px-1.5 py-0.5 rounded text-sm text-pink-500 dark:text-[#E8A0B4]">{match[2]}</code>);
+      }
+      idx = match.index + match[0].length;
+    }
+    if (idx < text.length) {
+      parts.push(parseInline(text.slice(idx)));
+    }
+    return parts;
+  }
+
+  const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={i} className="font-bold text-gray-900 dark:text-dark-text">{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return <code key={i} className="bg-gray-100 dark:bg-dark-card px-1.5 py-0.5 rounded text-sm text-pink-500 dark:text-[#E8A0B4]">{part.slice(1, -1)}</code>;
+    }
+    return part;
+  });
+}
