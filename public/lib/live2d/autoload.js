@@ -67,17 +67,16 @@
 
   app.ticker.add(function () {
     try {
-      // Head angle
       var cm = model.internalModel.coreModel;
-      var aTarget = dx * 30;
-      cm.addParameterValueById("ParamAngleX", aTarget - cm.getParameterValueById("ParamAngleX"));
-
-      var aTargetY = dy * -10;
-      cm.addParameterValueById("ParamAngleY", aTargetY - cm.getParameterValueById("ParamAngleY"));
+      var angleX = dx * 30;
+      var angleY = dy * -10;
+      var eyeX = dx * 20;
+      var eyeY = dy * -8;
+      cm.addParameterValueById("ParamAngleX", angleX - cm.getParameterValueById("ParamAngleX"));
+      cm.addParameterValueById("ParamAngleY", angleY - cm.getParameterValueById("ParamAngleY"));
+      cm.addParameterValueById("ParamEyeBallX", eyeX - cm.getParameterValueById("ParamEyeBallX"));
+      cm.addParameterValueById("ParamEyeBallY", eyeY - cm.getParameterValueById("ParamEyeBallY"));
     } catch (e) {}
-    // Eye focus (pixi-live2d built-in API: 0.5 = center)
-    model.focus.x += (0.5 + dx * 0.5 - model.focus.x) * 0.08;
-    model.focus.y += (0.5 - dy * 0.5 - model.focus.y) * 0.08;
   });
 
   document.addEventListener("mousemove", function (e) {
