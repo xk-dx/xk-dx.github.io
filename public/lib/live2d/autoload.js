@@ -62,30 +62,37 @@
     return;
   }
 
-  // Head/eye tracking — directly set params on the internal model
-  var targetX = 0.5, targetY = 0.5;
-  var smoothX = 0, smoothY = 0;
+  // Head/eye tracking — model faces toward cursor from its own position
+  var dx = 0, dy = 0;
+  var curAngleX = 0, curAngleY = 0, curEyeX = 0, curEyeY = 0;
 
   function doTrack() {
-    smoothX += (targetX - 0.5 - smoothX) * 0.1;
-    smoothY += (targetY - 0.5 - smoothY) * 0.1;
+    var tgtAngleX = dx * 30;
+    var tgtAngleY = dy * -10;
+    var tgtEyeX   = dx * 20;
+    var tgtEyeY   = dy * 8;
+
+    curAngleX += (tgtAngleX - curAngleX) * 0.08;
+    curAngleY += (tgtAngleY - curAngleY) * 0.08;
+    curEyeX   += (tgtEyeX   - curEyeX)   * 0.08;
+    curEyeY   += (tgtEyeY   - curEyeY)   * 0.08;
 
     try {
-      var cm = model.internalModel.coreModel;
-      cm.addParameterValueById("ParamAngleX", smoothX * 30 - cm.getParameterValueById("ParamAngleX"));
-      cm.addParameterValueById("ParamAngleY", smoothY * 15 - cm.getParameterValueById("ParamAngleY"));
-      cm.addParameterValueById("ParamEyeBallX", smoothX * 20 - cm.getParameterValueById("ParamEyeBallX"));
-      cm.addParameterValueById("ParamEyeBallY", smoothY * -10 - cm.getParameterValueById("ParamEyeBallY"));
-    } catch (e) {
-      console.warn("Live2D track error:", e);
-    }
+      model.internalModel.coreModel.addParameterValueById("ParamAngleX", curAngleX - model.internalModel.coreModel.getParameterValueById("ParamAngleX"));
+      model.internalModel.coreModel.addParameterValueById("ParamAngleY", curAngleY - model.internalModel.coreModel.getParameterValueById("ParamAngleY"));
+      model.internalModel.coreModel.addParameterValueById("ParamEyeBallX", curEyeX - model.internalModel.coreModel.getParameterValueById("ParamEyeBallX"));
+      model.internalModel.coreModel.addParameterValueById("ParamEyeBallY", curEyeY - model.internalModel.coreModel.getParameterValueById("ParamEyeBallY"));
+    } catch (e) { console.warn("track", e); }
   }
 
   app.ticker.add(doTrack);
 
   document.addEventListener("mousemove", function (e) {
-    targetX = e.clientX / window.innerWidth;
-    targetY = e.clientY / window.innerHeight;
+    var rect = container.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top + rect.height / 2;
+    dx = (e.clientX - cx) / window.innerWidth * 2;
+    dy = (e.clientY - cy) / window.innerHeight * 2;
   });
 
   // Drag support
