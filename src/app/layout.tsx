@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import ThemeProvider from "./ThemeProvider";
 import "./globals.css";
 
@@ -16,7 +17,9 @@ export default function RootLayout({
     <html lang="ja" suppressHydrationWarning>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
+        <Script src="/lib/live2d/autoload.js" strategy="lazyOnload" />
       </body>
     </html>
   );
 }
+
