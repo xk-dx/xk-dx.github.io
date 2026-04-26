@@ -77,7 +77,7 @@
     } catch (e) {}
     // Eye focus (pixi-live2d built-in API: 0.5 = center)
     model.focus.x += (0.5 + dx * 0.5 - model.focus.x) * 0.08;
-    model.focus.y += (0.5 + dy * 0.5 - model.focus.y) * 0.08;
+    model.focus.y += (0.5 - dy * 0.5 - model.focus.y) * 0.08;
   });
 
   document.addEventListener("mousemove", function (e) {
