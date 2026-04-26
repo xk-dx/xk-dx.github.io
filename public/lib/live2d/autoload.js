@@ -73,9 +73,9 @@
     try {
       var cm = model.internalModel.coreModel;
       cm.addParameterValueById("ParamAngleX", smoothX * 30 - cm.getParameterValueById("ParamAngleX"));
-      cm.addParameterValueById("ParamAngleY", smoothY * -15 - cm.getParameterValueById("ParamAngleY"));
+      cm.addParameterValueById("ParamAngleY", smoothY * 15 - cm.getParameterValueById("ParamAngleY"));
       cm.addParameterValueById("ParamEyeBallX", smoothX * 20 - cm.getParameterValueById("ParamEyeBallX"));
-      cm.addParameterValueById("ParamEyeBallY", smoothY * 10 - cm.getParameterValueById("ParamEyeBallY"));
+      cm.addParameterValueById("ParamEyeBallY", smoothY * -10 - cm.getParameterValueById("ParamEyeBallY"));
     } catch (e) {
       console.warn("Live2D track error:", e);
     }
