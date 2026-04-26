@@ -77,16 +77,17 @@ function loadModelFrom(canvas, modelJsonPath) {
 }
 
 if (screen.width >= 768) {
-  Promise.all([
-    loadExternalResource(live2d_path + "waifu.css", "css"),
-    loadExternalResource(live2d_path + "pixi.min.js", "js"),
-    loadExternalResource(live2d_path + "cubism4.min.js", "js"),
-    loadExternalResource(live2d_path + "pixi-live2d.min.js", "js"),
-  ]).then(function () {
-    initWidget({
-      waifuPath: live2d_path + "waifu-tips.json",
-      cdnPath: live2d_path + "models/",
-      tools: ["hitokoto", "asteroids", "switch-model", "switch-texture", "photo", "info", "quit"],
+  loadExternalResource(live2d_path + "waifu.css", "css");
+  loadExternalResource(live2d_path + "cubismcore.min.js", "js")
+    .then(function () { return loadExternalResource(live2d_path + "pixi.min.js", "js"); })
+    .then(function () { return loadExternalResource(live2d_path + "cubism4.min.js", "js"); })
+    .then(function () { return loadExternalResource(live2d_path + "pixi-live2d.min.js", "js"); })
+    .then(function () {
+      initWidget({
+        waifuPath: live2d_path + "waifu-tips.json",
+        cdnPath: live2d_path + "models/",
+        tools: ["hitokoto", "asteroids", "switch-model", "switch-texture", "photo", "info", "quit"],
+      });
     });
-  });
+  }
 }
