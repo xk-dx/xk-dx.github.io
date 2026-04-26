@@ -10,7 +10,12 @@
   .dark body,
   body.dark,
   .dark {
-    @apply bg-[#0f0f13] text-gray-100;
+    --bg-primary: #1a1a1e;
+    --bg-secondary: #23232a;
+    --text-primary: #e8e6e3;
+    --text-secondary: #a09c98;
+    --border-color: #2e2e35;
+    @apply bg-[#1a1a1e] text-[#e8e6e3];
   }
 
   ::selection {
