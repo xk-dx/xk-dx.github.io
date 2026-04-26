@@ -34,7 +34,7 @@
   canvas.id = "live2d-canvas";
   canvas.width = W;
   canvas.height = H;
-  canvas.style.cssText = "width:100%;height:100%;display:block;";
+  canvas.style.cssText = "width:100%;height:100%;display:block;pointer-events:none;";
   container.appendChild(canvas);
   document.body.appendChild(container);
 
@@ -74,36 +74,27 @@
   }
 
   // Drag support
-  var isDragging = false, startX, startY, origX, origY;
+  var dragStartX, dragStartY, dragOrigX, dragOrigY;
   container.addEventListener("mousedown", function (e) {
-    isDragging = false; // will set true only on move
-    container.style.cursor = "grabbing";
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
     var rect = container.getBoundingClientRect();
-    startX = e.clientX;
-    startY = e.clientY;
-    origX = rect.left;
-    origY = rect.top;
+    dragOrigX = rect.left;
+    dragOrigY = rect.top;
     container.style.bottom = "auto";
     container.style.right = "auto";
     container.style.left = rect.left + "px";
     container.style.top = rect.top + "px";
-  });
-  document.addEventListener("mousemove", function (e) {
-    if (isDragging) {
-      container.style.left = (origX + e.clientX - startX) + "px";
-      container.style.top = (origY + e.clientY - startY) + "px";
-      return;
-    }
-    // Start drag only if mouse moved enough
-    if (startX !== undefined && (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5)) {
-      isDragging = true;
-    }
-  });
-  document.addEventListener("mouseup", function () {
-    if (isDragging) {
-      isDragging = false;
-    }
-    startX = startY = origX = origY = undefined;
-    container.style.cursor = "grab";
+
+    var onMove = function (ev) {
+      container.style.left = (dragOrigX + ev.clientX - dragStartX) + "px";
+      container.style.top = (dragOrigY + ev.clientY - dragStartY) + "px";
+    };
+    var onUp = function () {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
   });
 })();
