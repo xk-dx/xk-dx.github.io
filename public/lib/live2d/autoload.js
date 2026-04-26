@@ -53,8 +53,8 @@
       "/lib/live2d/models/231110/yili.model3.json"
     );
     app.stage.addChild(model);
-    model.anchor.set(0.5, 0.5);
-    model.position.set(W / 2, H + 10);
+    model.anchor.set(0.5, 1);
+    model.position.set(W / 2, H - 5);
     model.scale.set(0.22);
 
     container.addEventListener("mousemove", function (e) {
