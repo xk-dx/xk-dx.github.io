@@ -15,7 +15,8 @@ export default function MarkdownRenderer({ content }: { content: string }) {
     }
   };
 
-  lines.forEach((line, i) => {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     if (line.startsWith("```")) {
       if (inCode) {
         flushCode(`code-${i}`);
@@ -23,38 +24,50 @@ export default function MarkdownRenderer({ content }: { content: string }) {
       } else {
         inCode = true;
       }
-      return;
+      continue;
     }
     if (inCode) {
       codeLines.push(line);
-      return;
+      continue;
     }
 
     const trimmed = line.trim();
-    if (!trimmed) return;
+    if (!trimmed) continue;
 
     // Headings
     if (trimmed.startsWith("# ") && !trimmed.startsWith("## ")) {
       elements.push(<h1 key={i} className="text-3xl font-bold text-gray-900 dark:text-dark-text mt-14 mb-6">{trimmed.replace("# ", "")}</h1>);
-      return;
+      continue;
     }
     if (trimmed.startsWith("### ")) {
       elements.push(<h3 key={i} className="text-lg font-bold text-gray-900 dark:text-dark-text mt-10 mb-4">{trimmed.replace("### ", "")}</h3>);
-      return;
+      continue;
     }
     if (trimmed.startsWith("## ")) {
       elements.push(<h2 key={i} className="text-2xl font-bold text-gray-900 dark:text-dark-text mt-12 mb-5">{trimmed.replace("## ", "")}</h2>);
-      return;
+      continue;
     }
 
-    // Blockquote
+    // Blockquote — merge consecutive lines into one block
     if (trimmed.startsWith("> ")) {
+      const quoteLines: string[] = [trimmed.replace("> ", "")];
+      let j = i + 1;
+      while (j < lines.length && lines[j].trim().startsWith("> ")) {
+        quoteLines.push(lines[j].trim().replace("> ", ""));
+        j++;
+      }
       elements.push(
         <blockquote key={i} className="border-l-2 border-[#EFD3D7] pl-5 my-6 text-[#8E9AAF] italic text-sm leading-relaxed">
-          {parseInline(trimmed.replace("> ", ""))}
+          {quoteLines.map((ql, qi) => (
+            <span key={qi}>
+              {qi > 0 && <br />}
+              {parseInline(ql)}
+            </span>
+          ))}
         </blockquote>
       );
-      return;
+      i = j - 1;
+      continue;
     }
 
     // Table
@@ -73,96 +86,33 @@ export default function MarkdownRenderer({ content }: { content: string }) {
           </div>
         );
       } else {
-        // Data row — find nearest table and append
         elements.push(
           <div key={i} className="hidden" data-table-row={cells.join("||")} />
         );
       }
-      return;
+      continue;
     }
 
     // Separator
     if (trimmed === "---" || trimmed === "***") {
       elements.push(<hr key={i} className="my-10 border-[#CBC0D3]/20" />);
-      return;
+      continue;
     }
 
     // List
     if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
       elements.push(<li key={i} className="text-sm text-gray-600 dark:text-dark-muted leading-relaxed ml-5 list-disc mb-1.5">{parseInline(trimmed.slice(2))}</li>);
-      return;
+      continue;
     }
     if (/^\d+\.\s/.test(trimmed)) {
       elements.push(<li key={i} className="text-sm text-gray-600 dark:text-dark-muted leading-relaxed ml-5 list-decimal mb-1.5">{parseInline(trimmed.replace(/^\d+\.\s/, ""))}</li>);
-      return;
+      continue;
     }
 
     // Paragraph
     elements.push(<p key={i} className="text-sm text-gray-600 dark:text-dark-muted leading-relaxed mb-4">{parseInline(trimmed)}</p>);
-  });
+  }
 
   flushCode("code-end");
   return <>{elements}</>;
-}
-
-function parseInline(text: string): React.ReactNode {
-  // Handle images ![alt](src)
-  const imgRegex = /!\[(.*?)\]\((.*?)\)/;
-  const imgMatch = text.match(imgRegex);
-  if (imgMatch) {
-    const [full, alt, src] = imgMatch;
-    const before = text.slice(0, imgMatch.index);
-    const after = text.slice(imgMatch.index! + full.length);
-    return (
-      <>
-        {before}
-        <img
-          src={src}
-          alt={alt}
-          className="w-full rounded-xl my-6 shadow-md"
-          loading="lazy"
-        />
-        {parseInline(after)}
-      </>
-    );
-  }
-
-  // Handle inline HTML tags like <strong>, <em>, etc.
-  const htmlTagRegex = /<(strong|em|code|b|i)>(.*?)<\/\1>/g;
-  const splitByHtml = text.split(htmlTagRegex);
-  if (splitByHtml.length > 1) {
-    const parts: React.ReactNode[] = [];
-    let idx = 0;
-    let match;
-    htmlTagRegex.lastIndex = 0;
-    while ((match = htmlTagRegex.exec(text)) !== null) {
-      if (match.index > idx) {
-        parts.push(parseInline(text.slice(idx, match.index)));
-      }
-      const tag = match[1];
-      if (tag === "strong" || tag === "b") {
-        parts.push(<strong key={idx} className="font-bold text-gray-900 dark:text-dark-text">{match[2]}</strong>);
-      } else if (tag === "em" || tag === "i") {
-        parts.push(<em key={idx} className="italic">{match[2]}</em>);
-      } else if (tag === "code") {
-        parts.push(<code key={idx} className="bg-gray-100 dark:bg-dark-card px-1.5 py-0.5 rounded text-sm text-pink-500 dark:text-[#E8A0B4]">{match[2]}</code>);
-      }
-      idx = match.index + match[0].length;
-    }
-    if (idx < text.length) {
-      parts.push(parseInline(text.slice(idx)));
-    }
-    return parts;
-  }
-
-  const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={i} className="font-bold text-gray-900 dark:text-dark-text">{part.slice(2, -2)}</strong>;
-    }
-    if (part.startsWith("`") && part.endsWith("`")) {
-      return <code key={i} className="bg-gray-100 dark:bg-dark-card px-1.5 py-0.5 rounded text-sm text-pink-500 dark:text-[#E8A0B4]">{part.slice(1, -1)}</code>;
-    }
-    return part;
-  });
 }
