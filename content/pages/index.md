@@ -1,7 +1,7 @@
 ---
-title: 楓桜
-subtitle: 2026
-bio: 记录碎碎念
+title: 还没想好名字的网站
+subtitle: 个人辑录 · 2026
+bio: 文字 · 代码 ·感想
 quote: 在人间漂流
 quoteAuthor: 消えずに光の中で
 projects:
